@@ -1,8 +1,8 @@
 from usuario import Usuario
 
 class Empleado(Usuario):
-    def init(self, nombre_usuario, contraseña, nombre, apellido, dni, id_empleado):
-        super().init(nombre_usuario, contraseña, "Empleado")
+    def __init__(self, nombre_usuario, contrasena, nombre, apellido, dni, id_empleado):
+        super().__init__(nombre_usuario, contrasena, "Empleado") 
         self.nombre = nombre
         self.apellido = apellido
         self.dni = dni

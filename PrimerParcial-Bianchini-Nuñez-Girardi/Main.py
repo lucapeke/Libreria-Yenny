@@ -1,4 +1,3 @@
-# main.py
 from empleado import Empleado
 from gerente import Gerente
 from inventario import inventario
@@ -17,3 +16,5 @@ if gerente1.iniciar_sesion("Ana456", "admin123"):
     gerente1.ver_inventario(inventario)
     nuevo_libro = Libro(4, "Don Quijote", "Miguel de Cervantes", "Clásico", 30.0)
     gerente1.modificar_inventario(inventario, nuevo_libro)
+
+empleado1.ver_inventario(inventario)

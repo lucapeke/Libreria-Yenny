@@ -1,4 +1,3 @@
-# inventario.py
 from libro import Libro
 
 inventario = [
