@@ -17,19 +17,35 @@ def agregar_libro(titulo, autor, genero, precio):
     conn.close()
 
 def realizar_venta(id_libro, cantidad):
-    conn = sqlite3.connect('libreria.db')
+    # Conectar a la base de datos
+    conn = sqlite3.connect("libreria.db")
     cursor = conn.cursor()
 
-    # Verificar disponibilidad
-    cursor.execute("SELECT cantidad FROM libro WHERE id_libro = ?", (id_libro,))
+    # Verificar el stock disponible
+    cursor.execute("SELECT titulo, precio, stock FROM libro WHERE id_libro = ?", (id_libro,))
     resultado = cursor.fetchone()
-    if not resultado or resultado[0] < int(cantidad):
-        conn.close()
-        return False  # No hay suficiente stock
 
-    # Realizar la venta (restar cantidad)
-    nueva_cantidad = resultado[0] - int(cantidad)
-    cursor.execute("UPDATE libro SET cantidad = ? WHERE id_libro = ?", (nueva_cantidad, id_libro))
-    conn.commit()
-    conn.close()
-    return True
+    if resultado:
+        titulo, precio, stock = resultado
+        if stock >= cantidad:
+            # Realizar la venta restando el stock
+            nuevo_stock = stock - cantidad
+            cursor.execute("UPDATE libro SET stock = ? WHERE id_libro = ?", (nuevo_stock, id_libro))
+            conn.commit()
+
+            # Cerrar la conexión y devolver éxito y detalles del libro
+            conn.close()
+            libro_vendido = {
+                "titulo": titulo,
+                "precio": precio,
+                "stock_restante": nuevo_stock
+            }
+            return True, libro_vendido  # Éxito y detalles del libro
+        else:
+            # No hay suficiente stock
+            conn.close()
+            return False, None  # Error por falta de stock
+    else:
+        # Libro no encontrado
+        conn.close()
+        return False, None  # Error, libro no encontrado
