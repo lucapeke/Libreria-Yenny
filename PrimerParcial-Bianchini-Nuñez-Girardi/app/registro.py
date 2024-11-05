@@ -20,6 +20,7 @@ def registrar_usuario(nombre_usuario, contrasena, rol, nombre, apellido, dni):
 def ventana_registro(ventana_login):
     ventana = tk.Toplevel()
     ventana.title("Registro de Usuario")
+    ventana.geometry("600x500")
 
     try:
         imagen = Image.open("img/yenny.png")  

@@ -3,7 +3,8 @@ from tkinter import messagebox
 import sqlite3
 from app.models import obtener_libros
 from app import interfaz_empleado, interfaz_gerente
-from app.registro import ventana_registro  # Sigue igual
+from app.registro import ventana_registro
+from app.interfaz_empleado import ventana_empleado
 from PIL import Image, ImageTk
 
 def iniciar_sesion(nombre_usuario, contrasena):
@@ -52,7 +53,7 @@ def ventana_inicio():
             if rol == "gerente":
                 interfaz_gerente.ventana_gerente()
             else:
-                interfaz_empleado.ventana_empleado()
+                ventana_empleado()
         else:
             messagebox.showerror("Error", "Credenciales incorrectas")
 
