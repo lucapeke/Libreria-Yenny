@@ -1,21 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
-import sqlite3
 from PIL import Image, ImageTk
-
-def registrar_usuario(nombre_usuario, contrasena, rol, nombre, apellido, dni):
-    conn = sqlite3.connect('libreria.db')
-    cursor = conn.cursor()
-    try:
-        cursor.execute("""
-            INSERT INTO usuario (nombre_usuario, contrasena, rol, nombre, apellido, dni) 
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, (nombre_usuario, contrasena, rol, nombre, apellido, dni))
-        conn.commit()
-        messagebox.showinfo("Registro", "Usuario registrado exitosamente")
-    except sqlite3.IntegrityError:
-        messagebox.showerror("Error", "El usuario ya existe")
-    conn.close()
+from app.models import registrar_usuario
 
 def ventana_registro(ventana_login):
     ventana = tk.Toplevel()

@@ -1,38 +1,45 @@
 import tkinter as tk
-from app.models import obtener_libros, agregar_libro
+from app.inventario import ventana_inventario
+from app.venta import ventana_venta
+from app.gestionar_inventario import ventana_gestionar_inventario
+from app.gestionar_usuarios import ventana_gestionar_usuarios
 
 def ventana_gerente():
     ventana = tk.Toplevel()
     ventana.title("Panel de Gerente")
+    ventana.geometry("400x400")
 
-    tk.Label(ventana, text="Inventario").pack()
-    libros = obtener_libros()
-    for libro in libros:
-        tk.Label(ventana, text=f"{libro[1]} - {libro[2]} - {libro[3]} - ${libro[4]}").pack()
+    # Título en grande en la parte superior
+    titulo = tk.Label(ventana, text="PANEL DE GERENTE", font=("Arial", 16, "bold"))
+    titulo.pack(pady=10)
 
-    tk.Label(ventana, text="Título").pack()
-    entry_titulo = tk.Entry(ventana)
-    entry_titulo.pack()
+    # Marco para centrar los botones
+    marco = tk.Frame(ventana)
+    marco.pack(expand=True)
 
-    tk.Label(ventana, text="Autor").pack()
-    entry_autor = tk.Entry(ventana)
-    entry_autor.pack()
+    # Botón para ver el inventario
+    tk.Button(marco, text="Ver Inventario", command=ventana_inventario, width=20, bg="#0b6730", fg="white").pack(pady=10)
 
-    tk.Label(ventana, text="Género").pack()
-    entry_genero = tk.Entry(ventana)
-    entry_genero.pack()
+    # Botón para gestionar el inventario
+    tk.Button(marco, text="Gestionar Inventario", command=lambda: boton_gestionar_inventario(ventana), width=20, bg="#0b6730", fg="white").pack(pady=10)
 
-    tk.Label(ventana, text="Precio").pack()
-    entry_precio = tk.Entry(ventana)
-    entry_precio.pack()
+    # Botón para realizar una venta
+    tk.Button(marco, text="Realizar Venta", command=ventana_venta, width=20, bg="#0b6730", fg="white").pack(pady=10)
 
-    def on_agregar_libro():
-        titulo = entry_titulo.get()
-        autor = entry_autor.get()
-        genero = entry_genero.get()
-        precio = float(entry_precio.get())
-        agregar_libro(titulo, autor, genero, precio)
-        ventana.destroy()
-        ventana_gerente()  # Refresca la ventana
+    # Botón para gestionar usuarios
+    tk.Button(marco, text="Gestionar Usuarios", command=lambda: boton_gestionar_usuarios(ventana), width=20, bg="#0b6730", fg="white").pack(pady=10)
 
-    tk.Button(ventana, text="Agregar Libro", command=on_agregar_libro).pack()
+    # Botón para cerrar sesión
+    tk.Button(marco, text="Cerrar Sesión", command=ventana.destroy, width=20, bg="#b32428", fg="white").pack(pady=10)
+
+def boton_gestionar_usuarios(ventana):
+    from app.gestionar_usuarios import ventana_gestionar_usuarios 
+    ventana.destroy()
+    ventana_gestionar_usuarios()
+
+def boton_gestionar_inventario(ventana):
+    from app.gestionar_inventario import ventana_gestionar_inventario  
+    ventana.destroy()
+    ventana_gestionar_inventario()
+
+

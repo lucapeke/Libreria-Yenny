@@ -48,7 +48,7 @@ def ventana_inicio():
         contrasena = entry_contrasena.get()
         rol = iniciar_sesion(usuario, contrasena)
         if rol:
-            messagebox.showinfo("Inicio de sesión exitoso", f"Bienvenido, {rol}")
+            messagebox.showinfo("Inicio de sesión exitoso", f"BIENVENIDO. Ingresa como {rol}")
             ventana_login.withdraw()
             if rol == "gerente":
                 interfaz_gerente.ventana_gerente()

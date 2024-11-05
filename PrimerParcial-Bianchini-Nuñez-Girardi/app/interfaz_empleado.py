@@ -7,6 +7,10 @@ def ventana_empleado():
     ventana.title("Panel de Empleado")
     ventana.geometry("400x300")
 
+    # Título en grande en la parte superior
+    titulo = tk.Label(ventana, text="PANEL DE EMPLEADO", font=("Arial", 16, "bold"))
+    titulo.pack(pady=10)
+
     # Marco para centrar los botones
     marco = tk.Frame(ventana)
     marco.pack(expand=True)  # Expande el marco para ocupar el espacio disponible
@@ -20,5 +24,3 @@ def ventana_empleado():
     # Botón para cerrar sesión
     tk.Button(marco, text="Cerrar Sesión", command=ventana.destroy, width=20, bg="#b32428", fg="white").pack(pady=10)
 
-# Llamar a la función para mostrar la ventana (puedes hacerlo desde otra parte de tu código)
-# ventana_empleado()

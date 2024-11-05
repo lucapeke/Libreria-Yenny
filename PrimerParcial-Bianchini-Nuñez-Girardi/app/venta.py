@@ -7,6 +7,10 @@ def ventana_venta():
     ventana.title("Realizar Venta")
     ventana.geometry("1100x700")
 
+    # Título en grande en la parte superior
+    titulo = tk.Label(ventana, text="VENTA", font=("Arial", 16, "bold"))
+    titulo.pack(pady=10)
+
     # Marco para mostrar el inventario
     marco_inventario = tk.Frame(ventana)
     marco_inventario.pack(expand=True, pady=10)

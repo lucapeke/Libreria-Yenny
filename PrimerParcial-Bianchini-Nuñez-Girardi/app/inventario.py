@@ -6,6 +6,10 @@ def ventana_inventario():
     ventana.title("Inventario de Libros")
     ventana.geometry("1100x600")
 
+    # Título en grande en la parte superior
+    titulo = tk.Label(ventana, text="INVENTARIO", font=("Arial", 16, "bold"))
+    titulo.pack(pady=10)
+
     # Marco para centrar la tabla
     marco = tk.Frame(ventana)
     marco.pack(expand=True)
@@ -54,7 +58,7 @@ def ventana_inventario():
     buscar_libros()
 
     # Botón para cerrar la ventana
-    tk.Button(ventana, text="Cerrar", command=ventana.destroy, bg="#f0f0f0").pack(pady=10)
+    tk.Button(ventana, text="Cerrar", command=ventana.destroy, bg="#b32428", fg="white").pack(pady=10)
 
 # Llamar a la función para mostrar la ventana (puedes hacerlo desde otra parte de tu código)
 # ventana_inventario()
