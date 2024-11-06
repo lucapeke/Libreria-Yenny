@@ -2,12 +2,12 @@
 
 import tkinter as tk
 from tkinter import messagebox
-from app.models import obtener_libros, editar_libro
+from app.models import obtener_libros, confirmar_editar
 
 def ventana_editar_libro():
     ventana = tk.Toplevel()
     ventana.title("Editar Libro")
-    ventana.geometry("1100x700")
+    ventana.geometry("1100x800")
 
     # Título en grande en la parte superior
     titulo = tk.Label(ventana, text="EDITAR", font=("Arial", 16, "bold"))
@@ -89,20 +89,8 @@ def ventana_editar_libro():
     nuevo_stock = tk.Entry(frame_campos, width=20)
     nuevo_stock.grid(row=2, column=3, padx=5, pady=5)
 
-    # Función para confirmar la edición del libro
-    def confirmar_editar():
-        try:
-            id_libro_int = int(id_libro.get())
-            nuevo_precio_float = float(nuevo_precio.get())
-            nuevo_stock_int = int(nuevo_stock.get())
-
-            editar_libro(id_libro_int, nuevo_titulo.get(), nuevo_autor.get(), nuevo_genero.get(), nuevo_precio_float, nuevo_stock_int)
-            
-            messagebox.showinfo("Éxito", "El libro se ha editado correctamente.")
-            ventana.destroy()
-        except ValueError:
-            messagebox.showerror("Error", "Por favor, ingrese valores numéricos válidos para el ID, el Precio y el Stock.")
+    
 
     # Botones de Editar y Cerrar con colores solicitados
-    tk.Button(ventana, text="Editar", command=confirmar_editar, bg="#2196F3", fg="white").pack(pady=10)
+    tk.Button(ventana, text="Editar", command=lambda: confirmar_editar(ventana, id_libro, nuevo_titulo, nuevo_autor, nuevo_genero, nuevo_precio, nuevo_stock), bg="#2196F3", fg="white").pack(pady=10)
     tk.Button(ventana, text="Cerrar", command=ventana.destroy, bg="#b32428", fg="white").pack(pady=10)

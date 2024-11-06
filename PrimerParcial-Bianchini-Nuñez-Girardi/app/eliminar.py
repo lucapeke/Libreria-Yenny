@@ -2,12 +2,12 @@
 
 import tkinter as tk
 from tkinter import messagebox
-from app.models import obtener_libros, eliminar_libro  # Asegúrate de tener estas funciones en models.py
+from app.models import obtener_libros, confirmar_eliminar  # Asegúrate de tener estas funciones en models.py
 
 def ventana_eliminar_libro():
     ventana = tk.Toplevel()
     ventana.title("Eliminar Libro")
-    ventana.geometry("1100x700")
+    ventana.geometry("1100x750")
 
     # Título en grande en la parte superior
     titulo = tk.Label(ventana, text="ELIMINAR", font=("Arial", 16, "bold"))
@@ -68,28 +68,8 @@ def ventana_eliminar_libro():
     id_libro = tk.Entry(frame)
     id_libro.pack(pady=5)
 
-    # Función para confirmar la eliminación
-    def confirmar_eliminar():
-        try:
-            id_a_eliminar = int(id_libro.get())
-            
-            # Verificar si el ID existe en la base de datos
-            libros = obtener_libros()
-            if not any(libro[0] == id_a_eliminar for libro in libros):
-                messagebox.showerror("Error", f"No se encontró un libro con ID {id_a_eliminar}.")
-                return
-
-            # Eliminar el libro si el ID existe
-            eliminar_libro(id_a_eliminar)
-            messagebox.showinfo("Eliminar Libro", f"El libro con ID {id_a_eliminar} ha sido eliminado.")
-            ventana.destroy()
-        except ValueError:
-            messagebox.showerror("Error", "Por favor, ingrese un ID numérico válido.")
-        except Exception as e:
-            messagebox.showerror("Error", f"Ocurrió un error al intentar eliminar el libro: {e}")
-
     # Botones de Eliminar y Volver con colores solicitados
-    tk.Button(frame, text="Eliminar", command=confirmar_eliminar, bg="#b32428", fg="white").pack(pady=10)
+    tk.Button(frame, text="Eliminar", command=lambda: confirmar_eliminar(ventana, id_libro), bg="#b32428", fg="white").pack(pady=10)
     tk.Button(frame, text="Volver", command=ventana.destroy, bg="#2196F3", fg="white").pack(pady=10)
 
 # Llamar a la función para mostrar la ventana en el contexto adecuado.

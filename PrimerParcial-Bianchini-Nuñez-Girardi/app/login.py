@@ -1,20 +1,9 @@
 import tkinter as tk
 from tkinter import messagebox
-import sqlite3
-from app.models import obtener_libros
+from app.models import on_login
 from app import interfaz_empleado, interfaz_gerente
 from app.registro import ventana_registro
-from app.interfaz_empleado import ventana_empleado
 from PIL import Image, ImageTk
-
-def iniciar_sesion(nombre_usuario, contrasena):
-    conn = sqlite3.connect('libreria.db')
-    cursor = conn.cursor()
-    cursor.execute("SELECT rol FROM usuario WHERE nombre_usuario=? AND contrasena=?", 
-                   (nombre_usuario, contrasena))
-    result = cursor.fetchone()
-    conn.close()
-    return result[0] if result else None
 
 def ventana_inicio():
     ventana_login = tk.Tk()
@@ -43,22 +32,8 @@ def ventana_inicio():
     entry_contrasena = tk.Entry(frame, show="*")
     entry_contrasena.pack()
 
-    def on_login():
-        usuario = entry_usuario.get()
-        contrasena = entry_contrasena.get()
-        rol = iniciar_sesion(usuario, contrasena)
-        if rol:
-            messagebox.showinfo("Inicio de sesión exitoso", f"BIENVENIDO. Ingresa como {rol}")
-            ventana_login.withdraw()
-            if rol == "gerente":
-                interfaz_gerente.ventana_gerente()
-            else:
-                ventana_empleado()
-        else:
-            messagebox.showerror("Error", "Credenciales incorrectas")
-
     # Ocultar ventana de inicio y abrir la ventana de registro
-    tk.Button(frame, text="Iniciar Sesión", command=on_login, bg="#0b6730", fg="white").pack(pady=5)
+    tk.Button(frame, text="Iniciar Sesión", command=lambda: on_login(ventana_login, interfaz_gerente, interfaz_empleado, entry_usuario, entry_contrasena), bg="#0b6730", fg="white").pack(pady=5)
     tk.Button(frame, text="Registrarse", command=lambda: [ventana_login.withdraw(), ventana_registro(ventana_login)], bg="#2196F3", fg="white").pack(pady=5)
 
     ventana_login.mainloop()

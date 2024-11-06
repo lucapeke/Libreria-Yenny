@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from PIL import Image, ImageTk
-from app.models import registrar_usuario
+from app.models import on_register
 
 def ventana_registro(ventana_login):
     ventana = tk.Toplevel()
@@ -46,21 +46,5 @@ def ventana_registro(ventana_login):
     entry_dni = tk.Entry(ventana)
     entry_dni.pack()
 
-    def on_register():
-        usuario = entry_usuario.get()
-        contrasena = entry_contrasena.get()
-        rol = entry_rol.get().lower()
-        nombre = entry_nombre.get()
-        apellido = entry_apellido.get()
-        dni = entry_dni.get()
-
-        if len(contrasena) >= 6 and any(c.isupper() for c in contrasena):
-            registrar_usuario(usuario, contrasena, rol, nombre, apellido, dni)
-            ventana.destroy()
-            ventana_login.deiconify()  
-        else:
-            messagebox.showerror("Error", "La contraseña debe tener al menos 6 caracteres y una letra mayúscula.")
-
-    tk.Button(ventana, text="Registrarse", command=on_register, bg="#2196F3", fg="white").pack(pady=10)
+    tk.Button(ventana, text="Registrarse", command=lambda: on_register(ventana, ventana_login, entry_usuario, entry_contrasena, entry_rol, entry_nombre, entry_apellido, entry_dni), bg="#2196F3", fg="white").pack(pady=10)
     tk.Button(ventana, text="Volver", command=volver_a_inicio, bg="#b32428", fg="white").pack(pady=5)
-
