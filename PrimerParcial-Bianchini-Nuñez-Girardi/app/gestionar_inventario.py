@@ -8,7 +8,6 @@ def ventana_gestionar_inventario():
     ventana.title("Panel de Gerente - Gestionar Inventario")
     ventana.geometry("400x300")
 
-    # Título en grande en la parte superior
     titulo = tk.Label(ventana, text="GESTIONAR INVENTARIO", font=("Arial", 16, "bold"))
     titulo.pack(pady=10)
 
@@ -22,6 +21,6 @@ def ventana_gestionar_inventario():
     tk.Button(marco, text="Volver", command=lambda: volver_a_gerente(ventana), width=20, bg="#b32428", fg="white").pack(pady=10)
 
 def volver_a_gerente(ventana):
-    from app.interfaz_gerente import ventana_gerente  # Importación dentro de la función
+    from app.interfaz_gerente import ventana_gerente
     ventana.destroy()
     ventana_gerente()

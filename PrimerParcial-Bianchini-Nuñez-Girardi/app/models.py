@@ -74,52 +74,43 @@ def obtener_libros():
 
 
 def realizar_venta(id_libro, cantidad):
-    # Conectar a la base de datos
     conn = sqlite3.connect("libreria.db")
     cursor = conn.cursor()
 
-    # Verificar el stock disponible
     cursor.execute("SELECT titulo, precio, stock FROM libro WHERE id_libro = ?", (id_libro,))
     resultado = cursor.fetchone()
 
     if resultado:
         titulo, precio, stock = resultado
         if stock >= cantidad:
-            # Realizar la venta restando el stock
             nuevo_stock = stock - cantidad
             cursor.execute("UPDATE libro SET stock = ? WHERE id_libro = ?", (nuevo_stock, id_libro))
             conn.commit()
 
-            # Cerrar la conexión y devolver éxito y detalles del libro
             conn.close()
             libro_vendido = {
                 "titulo": titulo,
                 "precio": precio,
                 "stock_restante": nuevo_stock
             }
-            return True, libro_vendido  # Éxito y detalles del libro
+            return True, libro_vendido
         else:
-            # No hay suficiente stock
             conn.close()
-            return False, None  # Error por falta de stock
+            return False, None
     else:
-        # Libro no encontrado
         conn.close()
-        return False, None  # Error, libro no encontrado
+        return False, None
 def realizar_venta_funcion(ventana, entry_id_libro, entry_cantidad):
         try:
             id_libro = int(entry_id_libro.get())
             cantidad = int(entry_cantidad.get())
 
-            # Llamamos a la función para realizar la venta y verificar el stock
-            exito, libro_vendido = realizar_venta(id_libro, cantidad)  # `realizar_venta` debería retornar (bool, detalles libro)
+            exito, libro_vendido = realizar_venta(id_libro, cantidad)
 
             if exito:
-                # Calculamos el costo total
                 precio_individual = libro_vendido['precio']
                 costo_total = precio_individual * cantidad
 
-                # Mostramos el resumen de la venta
                 messagebox.showinfo("Venta Exitosa", f"Venta realizada con éxito\n\n"
                                                      f"Libro: {libro_vendido['titulo']}\n"
                                                      f"Precio por unidad: ${precio_individual:.2f}\n"
@@ -132,8 +123,6 @@ def realizar_venta_funcion(ventana, entry_id_libro, entry_cantidad):
         except ValueError:
             messagebox.showerror("Error", "Por favor, ingrese valores numéricos válidos para el ID y la cantidad.")   
 
-
-# Función para agregar un libro a la base de datos
 def agregar_libro(titulo, autor, genero, precio, stock):
     conn = sqlite3.connect('libreria.db')
     cursor = conn.cursor()
@@ -143,26 +132,18 @@ def agregar_libro(titulo, autor, genero, precio, stock):
     ''', (titulo, autor, genero, precio, stock))
     conn.commit()
     conn.close()
-# Función para confirmar la acción de agregar libro
 def confirmar_agregar(ventana, titulo, autor, genero, precio, stock):
     try:
-        # Intentar convertir Precio y Stock a los tipos correctos
         precio_float = float(precio.get())
         stock_int = int(stock.get())
 
-        # Llamada a la función para agregar el libro
         agregar_libro(titulo.get(), autor.get(), genero.get(), precio_float, stock_int)
             
-        # Mostrar mensaje de éxito y cerrar la ventana
         messagebox.showinfo("Éxito", "El libro se añadió correctamente.")
         ventana.destroy()
     except ValueError:
-        # Mostrar mensaje de error si hay un valor no numérico en Precio o Stock
          messagebox.showerror("Error", "Por favor, ingrese valores numéricos válidos para el Precio y el Stock.")
 
-
-
-# Función para editar un libro en la base de datos
 def editar_libro(id_libro, nuevo_titulo, nuevo_autor, nuevo_genero, nuevo_precio, nuevo_stock):
     conn = sqlite3.connect('libreria.db')
     cursor = conn.cursor()
@@ -173,7 +154,6 @@ def editar_libro(id_libro, nuevo_titulo, nuevo_autor, nuevo_genero, nuevo_precio
     ''', (nuevo_titulo, nuevo_autor, nuevo_genero, nuevo_precio, nuevo_stock, id_libro))
     conn.commit()
     conn.close()
-# Función para confirmar la edición del libro
 def confirmar_editar(ventana, id_libro, nuevo_titulo, nuevo_autor, nuevo_genero, nuevo_precio, nuevo_stock):
     try:
         id_libro_int = int(id_libro.get())
@@ -187,27 +167,21 @@ def confirmar_editar(ventana, id_libro, nuevo_titulo, nuevo_autor, nuevo_genero,
     except ValueError:
         messagebox.showerror("Error", "Por favor, ingrese valores numéricos válidos para el ID, el Precio y el Stock.")
 
-
-
-# Función para eliminar un libro de la base de datos
 def eliminar_libro(id_libro):
     conn = sqlite3.connect('libreria.db')
     cursor = conn.cursor()
     cursor.execute("DELETE FROM libro WHERE id_libro = ?", (id_libro,))
     conn.commit()
     conn.close()
-# Función para confirmar la eliminación
 def confirmar_eliminar(ventana, id_libro):
     try:
         id_a_eliminar = int(id_libro.get())
             
-        # Verificar si el ID existe en la base de datos
         libros = obtener_libros()
         if not any(libro[0] == id_a_eliminar for libro in libros):
             messagebox.showerror("Error", f"No se encontró un libro con ID {id_a_eliminar}.")
             return
 
-        # Eliminar el libro si el ID existe
         eliminar_libro(id_a_eliminar)
         messagebox.showinfo("Eliminar Libro", f"El libro con ID {id_a_eliminar} ha sido eliminado.")
         ventana.destroy()

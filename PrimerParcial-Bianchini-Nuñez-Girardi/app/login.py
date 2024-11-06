@@ -32,7 +32,6 @@ def ventana_inicio():
     entry_contrasena = tk.Entry(frame, show="*")
     entry_contrasena.pack()
 
-    # Ocultar ventana de inicio y abrir la ventana de registro
     tk.Button(frame, text="Iniciar Sesión", command=lambda: on_login(ventana_login, interfaz_gerente, interfaz_empleado, entry_usuario, entry_contrasena), bg="#0b6730", fg="white").pack(pady=5)
     tk.Button(frame, text="Registrarse", command=lambda: [ventana_login.withdraw(), ventana_registro(ventana_login)], bg="#2196F3", fg="white").pack(pady=5)
 

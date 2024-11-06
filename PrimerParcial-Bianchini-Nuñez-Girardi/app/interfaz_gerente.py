@@ -9,27 +9,20 @@ def ventana_gerente():
     ventana.title("Panel de Gerente")
     ventana.geometry("400x400")
 
-    # Título en grande en la parte superior
     titulo = tk.Label(ventana, text="PANEL DE GERENTE", font=("Arial", 16, "bold"))
     titulo.pack(pady=10)
 
-    # Marco para centrar los botones
     marco = tk.Frame(ventana)
     marco.pack(expand=True)
 
-    # Botón para ver el inventario
     tk.Button(marco, text="Ver Inventario", command=ventana_inventario, width=20, bg="#0b6730", fg="white").pack(pady=10)
 
-    # Botón para gestionar el inventario
     tk.Button(marco, text="Gestionar Inventario", command=lambda: boton_gestionar_inventario(ventana), width=20, bg="#0b6730", fg="white").pack(pady=10)
 
-    # Botón para realizar una venta
     tk.Button(marco, text="Realizar Venta", command=ventana_venta, width=20, bg="#0b6730", fg="white").pack(pady=10)
 
-    # Botón para gestionar usuarios
     tk.Button(marco, text="Gestionar Usuarios", command=lambda: boton_gestionar_usuarios(ventana), width=20, bg="#0b6730", fg="white").pack(pady=10)
 
-    # Botón para cerrar sesión
     tk.Button(marco, text="Cerrar Sesión", command=ventana.destroy, width=20, bg="#b32428", fg="white").pack(pady=10)
 
 def boton_gestionar_usuarios(ventana):
@@ -41,5 +34,3 @@ def boton_gestionar_inventario(ventana):
     from app.gestionar_inventario import ventana_gestionar_inventario  
     ventana.destroy()
     ventana_gestionar_inventario()
-
-

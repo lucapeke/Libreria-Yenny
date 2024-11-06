@@ -1,4 +1,3 @@
-# ventana_agregar.py
 
 import tkinter as tk
 from tkinter import messagebox
@@ -9,15 +8,12 @@ def ventana_agregar_libro():
     ventana.title("Agregar Libro")
     ventana.geometry("300x400")
     
-    # Título en grande en la parte superior
     titulo = tk.Label(ventana, text="AGREGAR", font=("Arial", 16, "bold"))
     titulo.pack(pady=10)
 
-    # Crear un frame para centrar el contenido
     frame = tk.Frame(ventana)
-    frame.pack(expand=True)  # Expandir el frame para centrar el contenido verticalmente
+    frame.pack(expand=True)
 
-    # Campos de entrada
     tk.Label(frame, text="Título").pack(pady=5)
     titulo = tk.Entry(frame)
     titulo.pack()
@@ -39,8 +35,5 @@ def ventana_agregar_libro():
     stock.pack()
 
 
-    # Botones de Agregar y Cerrar con colores solicitados
     tk.Button(frame, text="Agregar", command=lambda: confirmar_agregar(ventana, titulo, autor, genero, precio, stock), bg="#2196F3", fg="white").pack(pady=10)
     tk.Button(frame, text="Cerrar", command=ventana.destroy, bg="#b32428", fg="white").pack(pady=10)
-
-# Asegúrate de que esta función se llame en el contexto adecuado para abrir la ventana.
