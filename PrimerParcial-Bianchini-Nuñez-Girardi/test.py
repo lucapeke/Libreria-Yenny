@@ -7,47 +7,299 @@ import sqlite3
 from app.models import (
     iniciar_sesion,
     registrar_usuario,
-    obtener_libros,
+    on_register,
     realizar_venta,
-    agregar_libro,
-    editar_libro,
-    eliminar_libro
+    realizar_venta_funcion,
+    confirmar_agregar, 
+    confirmar_editar, 
+    eliminar_libro, 
+    confirmar_eliminar
 )
 
 class TestLibreria(unittest.TestCase):
 
-    # Test para la función iniciar_sesion
     def test_iniciar_sesion_exitoso(self):
-        # Ahora probamos iniciar sesión con los datos que insertamos
         rol = iniciar_sesion('Juan123', 'pass123')
         self.assertEqual(rol, 'empleado')
-
     def test_iniciar_sesion_fallido(self):
-        # Intentamos iniciar sesión con un usuario inexistente
         rol = iniciar_sesion('usuario_inexistente', 'contrasena_incorrecta')
         self.assertIsNone(rol)
 
-    # Test para la función registrar_usuario
+
+
     @patch('tkinter.messagebox.showinfo')
     def test_registrar_usuario_exitoso(self, mock_showinfo):
         registrar_usuario('nuevo_usuario_test', 'NuevaPass1', 'empleado', 'Nuevo', 'Usuario', '12345679')
         mock_showinfo.assert_called_once_with("Registro", "Usuario registrado exitosamente")
-
     @patch('tkinter.messagebox.showerror')
     def test_registrar_usuario_existente(self, mock_showerror):
-        # Intentar registrar un usuario con un nombre de usuario que ya existe
         registrar_usuario('Juan123', 'Contrasena123', 'empleado', 'Juan', 'Pérez', '12345678')
         mock_showerror.assert_called_once_with("Error", "El usuario ya existe")
+    def setUp(self):
+        self.ventana = MagicMock()
+        self.ventana_login = MagicMock()
+        self.entry_usuario = MagicMock()
+        self.entry_contrasena = MagicMock()
+        self.entry_rol = MagicMock()
+        self.entry_nombre = MagicMock()
+        self.entry_apellido = MagicMock()
+        self.entry_dni = MagicMock()
+    @patch('tkinter.messagebox.showerror')
+    def test_on_register_dni_invalido(self, mock_showerror):
+        # Configurar DNI no numérico
+        self.entry_dni.get.return_value = "ABC123"
+        self.entry_rol.get.return_value = "empleado"
+        # Llamar a la función on_register
+        on_register(self.ventana, self.ventana_login, self.entry_usuario, self.entry_contrasena,
+                    self.entry_rol, self.entry_nombre, self.entry_apellido, self.entry_dni)
+        # Verificar que se muestra el mensaje de error correcto
+        mock_showerror.assert_called_once_with("Error", "El DNI debe contener solo números.")
+    @patch('tkinter.messagebox.showerror')
+    def test_on_register_rol_invalido(self, mock_showerror):
+        # Configurar rol no permitido
+        self.entry_rol.get.return_value = "admin"
+        self.entry_dni.get.return_value = "12345678"
+        # Llamar a la función on_register
+        on_register(self.ventana, self.ventana_login, self.entry_usuario, self.entry_contrasena,
+                    self.entry_rol, self.entry_nombre, self.entry_apellido, self.entry_dni)
+        # Verificar que se muestra el mensaje de error correcto
+        mock_showerror.assert_called_once_with("Error", "El rol debe ser 'empleado' o 'gerente'.")
+    @patch('tkinter.messagebox.showerror')
+    def test_on_register_contrasena_invalida(self, mock_showerror):
+        # Configurar rol y DNI válidos, pero contraseña no válida
+        self.entry_rol.get.return_value = "empleado"
+        self.entry_dni.get.return_value = "12345678"
+        self.entry_contrasena.get.return_value = "abc123"
+        # Llamar a la función on_register
+        on_register(self.ventana, self.ventana_login, self.entry_usuario, self.entry_contrasena,
+                    self.entry_rol, self.entry_nombre, self.entry_apellido, self.entry_dni)
+        # Verificar que se muestra el mensaje de error correcto
+        mock_showerror.assert_called_once_with("Error", "La contraseña debe tener al menos 6 caracteres y una letra mayúscula.")
 
-    # Test para la función obtener_libros
-    def test_obtener_libros(self):
-        conn = sqlite3.connect("libreria.db")
-        cursor = conn.cursor()
-        cursor.execute("SELECT id_libro, titulo, autor, genero, precio, stock FROM libro")
-        libros = cursor.fetchall()
-        self.assertGreater(len(libros), 0)  # Asegura que haya al menos un libro en la base de datos
-        conn.close()
-    
+
+
+    #Test para ventas
+    @patch("sqlite3.connect")
+    def test_realizar_venta_exitoso(self, mock_connect):
+        # Configuramos el mock de la conexión
+        mock_conn = MagicMock()
+        mock_cursor = mock_conn.cursor.return_value
+        mock_connect.return_value = mock_conn
+        # Simulamos la respuesta de la base de datos para tener stock suficiente
+        mock_cursor.fetchone.return_value = ("Libro Prueba", 20.0, 10)
+        # Llamamos a la función con id de libro y cantidad disponibles
+        exito, libro_vendido = realizar_venta(1, 5)
+        # Verificamos los resultados
+        self.assertTrue(exito)
+        self.assertIsNotNone(libro_vendido)
+        self.assertEqual(libro_vendido["titulo"], "Libro Prueba")
+        self.assertEqual(libro_vendido["precio"], 20.0)
+        self.assertEqual(libro_vendido["stock_restante"], 5)
+        mock_cursor.execute.assert_called_with("UPDATE libro SET stock = ? WHERE id_libro = ?", (5, 1))
+    @patch("sqlite3.connect")
+    def test_realizar_venta_sin_stock(self, mock_connect):
+        # Configuramos el mock para simular que no hay suficiente stock
+        mock_conn = MagicMock()
+        mock_cursor = mock_conn.cursor.return_value
+        mock_connect.return_value = mock_conn
+        # Simulamos la respuesta con stock insuficiente
+        mock_cursor.fetchone.return_value = ("Libro Prueba", 20.0, 3)
+        # Intentamos realizar la venta con cantidad superior al stock
+        exito, libro_vendido = realizar_venta(1, 5)
+        # Verificamos que la venta falla por falta de stock
+        self.assertFalse(exito)
+        self.assertIsNone(libro_vendido)
+    @patch("sqlite3.connect")
+    def test_realizar_venta_libro_no_encontrado(self, mock_connect):
+        # Configuramos el mock para simular que el libro no se encuentra
+        mock_conn = MagicMock()
+        mock_cursor = mock_conn.cursor.return_value
+        mock_connect.return_value = mock_conn
+        # Simulamos que no se encontró el libro
+        mock_cursor.fetchone.return_value = None
+        # Intentamos realizar la venta con un ID de libro inexistente
+        exito, libro_vendido = realizar_venta(99, 2)
+        # Verificamos que la venta falla porque no se encuentra el libro
+        self.assertFalse(exito)
+        self.assertIsNone(libro_vendido)
+    @patch("tkinter.messagebox.showinfo")
+    @patch("tkinter.messagebox.showerror")
+    @patch("app.models.realizar_venta")
+    def test_realizar_venta_funcion_exitoso(self, mock_realizar_venta, mock_showerror, mock_showinfo):
+        # Configurar los mocks de entradas y de la venta
+        mock_realizar_venta.return_value = (True, {
+            "titulo": "Libro Prueba",
+            "precio": 15.0,
+            "stock_restante": 5
+        })
+        ventana_mock = MagicMock()
+        entry_id_libro_mock = MagicMock()
+        entry_cantidad_mock = MagicMock()
+        entry_id_libro_mock.get.return_value = "1"
+        entry_cantidad_mock.get.return_value = "2"
+        # Llamar a la función con los mocks
+        realizar_venta_funcion(ventana_mock, entry_id_libro_mock, entry_cantidad_mock)
+        # Comprobar que se llamó a showinfo con la información correcta
+        mock_showinfo.assert_called_once_with("Venta Exitosa", 
+            "Venta realizada con éxito\n\n"
+            "Libro: Libro Prueba\n"
+            "Precio por unidad: $15.00\n"
+            "Cantidad vendida: 2\n"
+            "Costo total: $30.00\n"
+            "Stock restante: 5"
+        )
+        ventana_mock.destroy.assert_called_once()
+        mock_showerror.assert_not_called()
+    @patch("tkinter.messagebox.showerror")
+    @patch("app.models.realizar_venta")
+    def test_realizar_venta_funcion_sin_stock(self, mock_realizar_venta, mock_showerror):
+        # Configuramos la función para simular falta de stock
+        mock_realizar_venta.return_value = (False, None)
+        ventana_mock = MagicMock()
+        entry_id_libro_mock = MagicMock()
+        entry_cantidad_mock = MagicMock()
+        entry_id_libro_mock.get.return_value = "1"
+        entry_cantidad_mock.get.return_value = "10"
+        # Llamar a la función
+        realizar_venta_funcion(ventana_mock, entry_id_libro_mock, entry_cantidad_mock)
+        # Verificar que se muestra el mensaje de error por falta de stock
+        mock_showerror.assert_called_once_with("Error", "No hay suficiente stock para realizar la venta.")
+        ventana_mock.destroy.assert_not_called()
+    @patch("tkinter.messagebox.showerror")
+    def test_realizar_venta_funcion_valores_invalidos(self, mock_showerror):
+        # Simulamos valores no numéricos para ID y cantidad
+        ventana_mock = MagicMock()
+        entry_id_libro_mock = MagicMock()
+        entry_cantidad_mock = MagicMock()
+        entry_id_libro_mock.get.return_value = "id_invalido"
+        entry_cantidad_mock.get.return_value = "cantidad_invalida"
+        # Llamar a la función
+        realizar_venta_funcion(ventana_mock, entry_id_libro_mock, entry_cantidad_mock)
+        # Verificar que se muestra el mensaje de error de entrada inválida
+        mock_showerror.assert_called_once_with("Error", "Por favor, ingrese valores numéricos válidos para el ID y la cantidad.")
+        ventana_mock.destroy.assert_not_called()
+
+
+    ###
+    @patch("tkinter.messagebox.showinfo")
+    @patch("tkinter.messagebox.showerror")
+    @patch("app.models.agregar_libro")
+    def test_confirmar_agregar_exitoso(self, mock_agregar_libro, mock_showerror, mock_showinfo):
+        ventana_mock = MagicMock()
+        titulo_mock = MagicMock()
+        autor_mock = MagicMock()
+        genero_mock = MagicMock()
+        precio_mock = MagicMock()
+        stock_mock = MagicMock()
+
+        # Configuramos valores de entrada válidos
+        titulo_mock.get.return_value = "Libro Test"
+        autor_mock.get.return_value = "Autor Test"
+        genero_mock.get.return_value = "Género Test"
+        precio_mock.get.return_value = "29.99"
+        stock_mock.get.return_value = "10"
+
+        # Llamamos a la función de confirmación
+        confirmar_agregar(ventana_mock, titulo_mock, autor_mock, genero_mock, precio_mock, stock_mock)
+
+        # Verificar que se llamó a agregar_libro y que se mostró el mensaje de éxito
+        mock_agregar_libro.assert_called_once_with("Libro Test", "Autor Test", "Género Test", 29.99, 10)
+        mock_showinfo.assert_called_once_with("Éxito", "El libro se añadió correctamente.")
+        ventana_mock.destroy.assert_called_once()
+        mock_showerror.assert_not_called()
+
+    @patch("tkinter.messagebox.showerror")
+    def test_confirmar_agregar_valores_invalidos(self, mock_showerror):
+        ventana_mock = MagicMock()
+        titulo_mock = MagicMock()
+        autor_mock = MagicMock()
+        genero_mock = MagicMock()
+        precio_mock = MagicMock()
+        stock_mock = MagicMock()
+
+        # Configuramos valores de entrada inválidos para precio y stock
+        precio_mock.get.return_value = "precio_invalido"
+        stock_mock.get.return_value = "stock_invalido"
+
+        # Llamamos a la función de confirmación
+        confirmar_agregar(ventana_mock, titulo_mock, autor_mock, genero_mock, precio_mock, stock_mock)
+
+        # Verificar que se muestra el mensaje de error
+        mock_showerror.assert_called_once_with("Error", "Por favor, ingrese valores numéricos válidos para el Precio y el Stock.")
+        ventana_mock.destroy.assert_not_called()
+
+
+
+    @patch("tkinter.messagebox.showinfo")
+    @patch("tkinter.messagebox.showerror")
+    @patch("app.models.editar_libro")
+    def test_confirmar_editar_exitoso(self, mock_editar_libro, mock_showerror, mock_showinfo):
+        ventana_mock = MagicMock()
+        id_libro_mock = MagicMock()
+        nuevo_titulo_mock = MagicMock()
+        nuevo_autor_mock = MagicMock()
+        nuevo_genero_mock = MagicMock()
+        nuevo_precio_mock = MagicMock()
+        nuevo_stock_mock = MagicMock()
+
+        id_libro_mock.get.return_value = "1"
+        nuevo_precio_mock.get.return_value = "39.99"
+        nuevo_stock_mock.get.return_value = "5"
+
+        confirmar_editar(ventana_mock, id_libro_mock, nuevo_titulo_mock, nuevo_autor_mock, nuevo_genero_mock, nuevo_precio_mock, nuevo_stock_mock)
+
+        mock_editar_libro.assert_called_once_with(1, nuevo_titulo_mock.get(), nuevo_autor_mock.get(), nuevo_genero_mock.get(), 39.99, 5)
+        mock_showinfo.assert_called_once_with("Éxito", "El libro se ha editado correctamente.")
+        ventana_mock.destroy.assert_called_once()
+        mock_showerror.assert_not_called()
+
+
+
+    @patch("sqlite3.connect")
+    def test_eliminar_libro(self, mock_connect):
+        mock_conn = MagicMock()
+        mock_cursor = mock_conn.cursor.return_value
+        mock_connect.return_value = mock_conn
+
+        eliminar_libro(1)
+
+        mock_cursor.execute.assert_called_once_with("DELETE FROM libro WHERE id_libro = ?", (1,))
+        mock_conn.commit.assert_called_once()
+        mock_conn.close.assert_called_once()
+
+    @patch("tkinter.messagebox.showinfo")
+    @patch("tkinter.messagebox.showerror")
+    @patch("app.models.eliminar_libro")
+    @patch("app.models.obtener_libros")
+    def test_confirmar_eliminar_exitoso(self, mock_obtener_libros, mock_eliminar_libro, mock_showerror, mock_showinfo):
+        ventana_mock = MagicMock()
+        id_libro_mock = MagicMock()
+        id_libro_mock.get.return_value = "1"
+
+        # Simular que el ID existe en los libros
+        mock_obtener_libros.return_value = [(1, "Libro Prueba")]
+
+        confirmar_eliminar(ventana_mock, id_libro_mock)
+
+        mock_eliminar_libro.assert_called_once_with(1)
+        mock_showinfo.assert_called_once_with("Eliminar Libro", "El libro con ID 1 ha sido eliminado.")
+        ventana_mock.destroy.assert_called_once()
+        mock_showerror.assert_not_called()
+
+    @patch("tkinter.messagebox.showerror")
+    @patch("app.models.obtener_libros")
+    def test_confirmar_eliminar_libro_no_existe(self, mock_obtener_libros, mock_showerror):
+        ventana_mock = MagicMock()
+        id_libro_mock = MagicMock()
+        id_libro_mock.get.return_value = "99"
+
+        # Simulamos que el ID no existe en los libros
+        mock_obtener_libros.return_value = [(1, "Libro Prueba")]
+
+        confirmar_eliminar(ventana_mock, id_libro_mock)
+
+        mock_showerror.assert_called_once_with("Error", "No se encontró un libro con ID 99.")
+        ventana_mock.destroy.assert_not_called()
 
 if __name__ == '__main__':
     unittest.main()
