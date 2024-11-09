@@ -1,40 +1,48 @@
-
 import tkinter as tk
-from tkinter import messagebox
-from app.models import obtener_libros, confirmar_eliminar
+from tkinter import messagebox, ttk
+from app.models import obtener_libros, confirmar_eliminar, nav_gestionar_inventario
 
 def ventana_eliminar_libro():
     ventana = tk.Toplevel()
     ventana.title("Eliminar Libro")
-    ventana.geometry("1100x750")
+    ventana.geometry("960x450")
 
     titulo = tk.Label(ventana, text="ELIMINAR", font=("Arial", 16, "bold"))
-    titulo.pack(pady=10)
+    titulo.grid(row=0, column=0, columnspan=6, pady=10)
 
     marco_inventario = tk.Frame(ventana)
-    marco_inventario.pack(expand=True, pady=10)
+    marco_inventario.grid(row=1, column=0, columnspan=6, padx=10, pady=10)
 
     tk.Label(marco_inventario, text="Buscar:").grid(row=0, column=0, sticky='w', padx=10, pady=10)
     busqueda_entry = tk.Entry(marco_inventario, width=25)
     busqueda_entry.grid(row=0, column=1, padx=10, pady=10)
 
+    # Tabla de Inventario
+    columnas = ["ID", "Título", "Autor", "Género", "Precio", "Stock"]
+    tree = ttk.Treeview(marco_inventario, columns=columnas, show="headings", selectmode="browse")
+    
+    for col in columnas:
+        tree.heading(col, text=col, anchor="center")
+        tree.column(col, width=150, anchor="center")
+
+    # Scrollbar para la tabla
+    scrollbar = ttk.Scrollbar(marco_inventario, orient="vertical", command=tree.yview)
+    tree.configure(yscroll=scrollbar.set)
+    scrollbar.grid(row=1, column=6, sticky="ns")
+
+    tree.grid(row=1, column=0, columnspan=5, pady=(10, 20))
+
     def buscar_libros():
-        for widget in marco_inventario.grid_slaves():
-            if int(widget.grid_info()["row"]) > 1:
-                widget.grid_forget()
+        for item in tree.get_children():
+            tree.delete(item)
 
         texto_busqueda = busqueda_entry.get().lower()
 
         libros = obtener_libros()
         libros_filtrados = [libro for libro in libros if texto_busqueda in libro[1].lower() or texto_busqueda in libro[2].lower()]
 
-        encabezados = ["ID", "Título", "Autor", "Género", "Precio", "Stock"]
-        for i, encabezado in enumerate(encabezados):
-            tk.Label(marco_inventario, text=encabezado, borderwidth=1, relief="solid", width=25, bg="#d3d3d3").grid(row=1, column=i)
-
-        for fila, libro in enumerate(libros_filtrados, start=2):
-            for col, dato in enumerate(libro):
-                tk.Label(marco_inventario, text=dato, borderwidth=1, relief="solid", width=25).grid(row=fila, column=col)
+        for libro in libros_filtrados:
+            tree.insert("", "end", values=libro)
 
     tk.Button(marco_inventario, text="Buscar", command=buscar_libros, bg="#2196F3", fg="white").grid(row=0, column=2, padx=10, pady=10)
 
@@ -46,12 +54,42 @@ def ventana_eliminar_libro():
 
     buscar_libros()
 
-    frame = tk.Frame(ventana)
-    frame.pack(pady=20)
+    # Función para obtener el ID del libro seleccionado
+    def obtener_id_seleccionado():
+        seleccionado = tree.selection()
+        if seleccionado:
+            item = tree.item(seleccionado[0])
+            return item['values'][0]  # El ID está en la primera columna
+        return None
 
-    tk.Label(frame, text="ID del Libro a Eliminar").pack(pady=5)
-    id_libro = tk.Entry(frame)
-    id_libro.pack(pady=5)
+    # Frame para eliminar
+    frame_botones = tk.Frame(ventana)
+    frame_botones.grid(row=2, column=0, columnspan=6, pady=10)
 
-    tk.Button(frame, text="Eliminar", command=lambda: confirmar_eliminar(ventana, id_libro), bg="#b32428", fg="white").pack(pady=10)
-    tk.Button(frame, text="Volver", command=ventana.destroy, bg="#2196F3", fg="white").pack(pady=10)
+    # Botón para eliminar el libro seleccionado
+    def eliminar_libro_seleccionado():
+        id_libro_seleccionado = obtener_id_seleccionado()
+
+        if id_libro_seleccionado:
+            confirmar_eliminar(ventana, id_libro_seleccionado)
+        else:
+            messagebox.showerror("Error", "Seleccione un libro para eliminar.")
+
+    boton_eliminar = tk.Button(
+        frame_botones,
+        text="Eliminar",
+        command=eliminar_libro_seleccionado,
+        bg="#b32428",
+        fg="white"
+    )
+    boton_eliminar.grid(row=0, column=0, padx=10)
+
+    # Botón para volver
+    boton_volver = tk.Button(
+        frame_botones,
+        text="Volver",
+        command=lambda: nav_gestionar_inventario(ventana),
+        bg="#2196F3",
+        fg="white"
+    )
+    boton_volver.grid(row=0, column=1, padx=10)

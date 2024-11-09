@@ -1,8 +1,6 @@
 import tkinter as tk
-from app.inventario import ventana_inventario
 from app.venta import ventana_venta
-from app.gestionar_inventario import ventana_gestionar_inventario
-from app.gestionar_usuarios import ventana_gestionar_usuarios
+from app.models import nav_gestionar_inventario, nav_gestionar_usuarios, nav_inventario, nav_venta
 
 def ventana_gerente():
     ventana = tk.Toplevel()
@@ -15,22 +13,12 @@ def ventana_gerente():
     marco = tk.Frame(ventana)
     marco.pack(expand=True)
 
-    tk.Button(marco, text="Ver Inventario", command=ventana_inventario, width=20, bg="#0b6730", fg="white").pack(pady=10)
+    tk.Button(marco, text="Ver Inventario", command=lambda: nav_inventario(ventana, ventana_gerente), width=20, bg="#0b6730", fg="white").pack(pady=10)
 
-    tk.Button(marco, text="Gestionar Inventario", command=lambda: boton_gestionar_inventario(ventana), width=20, bg="#0b6730", fg="white").pack(pady=10)
+    tk.Button(marco, text="Gestionar Inventario", command=lambda: nav_gestionar_inventario(ventana), width=20, bg="#0b6730", fg="white").pack(pady=10)
 
-    tk.Button(marco, text="Realizar Venta", command=ventana_venta, width=20, bg="#0b6730", fg="white").pack(pady=10)
+    tk.Button(marco, text="Realizar Venta", command=lambda: nav_venta(ventana, ventana_gerente), width=20, bg="#0b6730", fg="white").pack(pady=10)
 
-    tk.Button(marco, text="Gestionar Usuarios", command=lambda: boton_gestionar_usuarios(ventana), width=20, bg="#0b6730", fg="white").pack(pady=10)
+    tk.Button(marco, text="Gestionar Usuarios", command=lambda: nav_gestionar_usuarios(ventana), width=20, bg="#0b6730", fg="white").pack(pady=10)
 
     tk.Button(marco, text="Cerrar Sesión", command=ventana.destroy, width=20, bg="#b32428", fg="white").pack(pady=10)
-
-def boton_gestionar_usuarios(ventana):
-    from app.gestionar_usuarios import ventana_gestionar_usuarios 
-    ventana.destroy()
-    ventana_gestionar_usuarios()
-
-def boton_gestionar_inventario(ventana):
-    from app.gestionar_inventario import ventana_gestionar_inventario  
-    ventana.destroy()
-    ventana_gestionar_inventario()

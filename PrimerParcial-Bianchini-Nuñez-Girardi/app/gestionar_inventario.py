@@ -1,7 +1,5 @@
 import tkinter as tk
-from app.agregar import ventana_agregar_libro
-from app.eliminar import ventana_eliminar_libro
-from app.editar import ventana_editar_libro
+from app.models import nav_gerente, nav_agregar, nav_editar, nav_eliminar
 
 def ventana_gestionar_inventario():
     ventana = tk.Toplevel()
@@ -14,13 +12,8 @@ def ventana_gestionar_inventario():
     marco = tk.Frame(ventana)
     marco.pack(expand=True)
 
-    tk.Button(marco, text="Agregar Libro", command=ventana_agregar_libro, width=20, bg="#0b6730", fg="white").pack(pady=10)
-    tk.Button(marco, text="Eliminar Libro", command=ventana_eliminar_libro, width=20, bg="#0b6730", fg="white").pack(pady=10)
-    tk.Button(marco, text="Editar Libro", command=ventana_editar_libro, width=20, bg="#0b6730", fg="white").pack(pady=10)
+    tk.Button(marco, text="Agregar Libro", command=lambda: nav_agregar(ventana), width=20, bg="#0b6730", fg="white").pack(pady=10)
+    tk.Button(marco, text="Eliminar Libro", command=lambda: nav_eliminar(ventana), width=20, bg="#0b6730", fg="white").pack(pady=10)
+    tk.Button(marco, text="Editar Libro", command=lambda: nav_editar(ventana), width=20, bg="#0b6730", fg="white").pack(pady=10)
 
-    tk.Button(marco, text="Volver", command=lambda: volver_a_gerente(ventana), width=20, bg="#b32428", fg="white").pack(pady=10)
-
-def volver_a_gerente(ventana):
-    from app.interfaz_gerente import ventana_gerente
-    ventana.destroy()
-    ventana_gerente()
+    tk.Button(marco, text="Volver", command=lambda: nav_gerente(ventana), width=20, bg="#b32428", fg="white").pack(pady=10)

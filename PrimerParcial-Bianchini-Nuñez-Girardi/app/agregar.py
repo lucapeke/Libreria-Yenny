@@ -1,7 +1,7 @@
 
 import tkinter as tk
 from tkinter import messagebox
-from app.models import confirmar_agregar
+from app.models import confirmar_agregar, nav_gestionar_inventario
 
 def ventana_agregar_libro():
     ventana = tk.Toplevel()
@@ -36,4 +36,4 @@ def ventana_agregar_libro():
 
 
     tk.Button(frame, text="Agregar", command=lambda: confirmar_agregar(ventana, titulo, autor, genero, precio, stock), bg="#2196F3", fg="white").pack(pady=10)
-    tk.Button(frame, text="Cerrar", command=ventana.destroy, bg="#b32428", fg="white").pack(pady=10)
+    tk.Button(frame, text="Cerrar", command=lambda: nav_gestionar_inventario(ventana), bg="#b32428", fg="white").pack(pady=10)

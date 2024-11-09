@@ -1,6 +1,11 @@
 import sqlite3
+import os
 
-conn = sqlite3.connect("libreria.db")
+ruta_carpeta = "database"
+nombre_bd = "libreria.db"
+ruta_bd = os.path.join(ruta_carpeta, nombre_bd)
+
+conn = sqlite3.connect(ruta_bd)
 cursor = conn.cursor()
 
 cursor.execute('''
@@ -51,9 +56,28 @@ libros_iniciales = [
     ("Ulises", "James Joyce", "Clásico", 26.0, 5),
     ("El Retrato de Dorian Gray", "Oscar Wilde", "Ficción", 17.5, 8),
     ("Hamlet", "William Shakespeare", "Tragedia", 15.0, 13),
-    ("El Nombre de la Rosa", "Umberto Eco", "Misterio", 19.0, 6)
+    ("El Nombre de la Rosa", "Umberto Eco", "Misterio", 19.0, 6),
+    ("La Sombra del Viento", "Carlos Ruiz Zafón", "Misterio", 22.5, 14),
+    ("El Código Da Vinci", "Dan Brown", "Suspenso", 25.0, 18),
+    ("Harry Potter y la Piedra Filosofal", "J.K. Rowling", "Fantasía", 30.0, 12),
+    ("Los Pilares de la Tierra", "Ken Follett", "Histórico", 28.0, 9),
+    ("El Alquimista", "Paulo Coelho", "Ficción", 15.0, 17),
+    ("La Casa de los Espíritus", "Isabel Allende", "Realismo Mágico", 20.0, 13),
+    ("Crónica de una Muerte Anunciada", "Gabriel García Márquez", "Crónica", 18.0, 7),
+    ("El Perfume", "Patrick Süskind", "Suspenso", 22.0, 10),
+    ("El Hobbit", "J.R.R. Tolkien", "Fantasía", 19.0, 15),
+    ("Moby Dick", "Herman Melville", "Clásico", 24.0, 8),
+    ("La Metamorfosis", "Franz Kafka", "Ficción", 13.0, 6),
+    ("El Corazón de las Tinieblas", "Joseph Conrad", "Aventura", 21.0, 10),
+    ("En Busca del Tiempo Perdido", "Marcel Proust", "Filosofía", 35.0, 4),
+    ("Los hermanos Karamazov", "Fyodor Dostoyevsky", "Filosofía", 27.5, 5),
+    ("Rebelión en la Granja", "George Orwell", "Política", 14.0, 12),
+    ("El Gran Gatsby", "F. Scott Fitzgerald", "Novela", 14.0, 15),
+    ("Cumbres Borrascosas", "Emily Brontë", "Romántico", 21.5, 8),
+    ("El Señor de los Anillos: La Comunidad del Anillo", "J.R.R. Tolkien", "Fantasía", 28.0, 10),
+    ("La Broma Infinita", "David Foster Wallace", "Ficción", 40.0, 3),
+    ("Los Detectives Salvajes", "Roberto Bolaño", "Novela", 19.0, 9)
 ]
-
 
 cursor.executemany('''
     INSERT OR IGNORE INTO usuario (nombre_usuario, contrasena, rol, nombre, apellido, dni)
@@ -68,4 +92,4 @@ cursor.executemany('''
 conn.commit()
 conn.close()
 
-print("Base de datos inicializada con datos de prueba.")
+print(f"Base de datos inicializada en la carpeta 'database' con datos de prueba en {ruta_bd}.")

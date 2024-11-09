@@ -1,4 +1,5 @@
 import tkinter as tk
+from app.models import nav_gerente
 
 def ventana_gestionar_usuarios():
     ventana = tk.Toplevel()
@@ -12,9 +13,6 @@ def ventana_gestionar_usuarios():
     marco.pack(expand=True)
 
     tk.Label(marco, text="Función en desarrollo").pack()
-    tk.Button(marco, text="Volver", command=lambda: volver_a_gerente(ventana), width=20, bg="#b32428", fg="white").pack(pady=10)
+    tk.Button(marco, text="Volver", command=lambda: nav_gerente(ventana), width=20, bg="#b32428", fg="white").pack(pady=10)
 
-def volver_a_gerente(ventana):
-    from app.interfaz_gerente import ventana_gerente
-    ventana.destroy()
-    ventana_gerente()
+

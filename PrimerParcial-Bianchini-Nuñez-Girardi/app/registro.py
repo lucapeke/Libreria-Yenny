@@ -30,10 +30,6 @@ def ventana_registro(ventana_login):
     entry_contrasena = tk.Entry(ventana, show="*")
     entry_contrasena.pack()
 
-    tk.Label(ventana, text="Rol (empleado o gerente)").pack()
-    entry_rol = tk.Entry(ventana)
-    entry_rol.pack()
-
     tk.Label(ventana, text="Nombre").pack()
     entry_nombre = tk.Entry(ventana)
     entry_nombre.pack()
@@ -45,6 +41,8 @@ def ventana_registro(ventana_login):
     tk.Label(ventana, text="DNI").pack()
     entry_dni = tk.Entry(ventana)
     entry_dni.pack()
+
+    entry_rol="empleado"
 
     tk.Button(ventana, text="Registrarse", command=lambda: on_register(ventana, ventana_login, entry_usuario, entry_contrasena, entry_rol, entry_nombre, entry_apellido, entry_dni), bg="#2196F3", fg="white").pack(pady=10)
     tk.Button(ventana, text="Volver", command=volver_a_inicio, bg="#b32428", fg="white").pack(pady=5)

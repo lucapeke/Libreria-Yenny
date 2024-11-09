@@ -1,8 +1,12 @@
 import sqlite3
 from tkinter import messagebox
+import os
+ruta_carpeta = "database"
+nombre_bd = "libreria.db"
+ruta_bd = os.path.join(ruta_carpeta, nombre_bd)
 
 def iniciar_sesion(nombre_usuario, contrasena):
-    conn = sqlite3.connect('libreria.db')
+    conn = sqlite3.connect(ruta_bd)
     cursor = conn.cursor()
     cursor.execute("SELECT rol FROM usuario WHERE nombre_usuario=? AND contrasena=?", 
                    (nombre_usuario, contrasena))
@@ -25,7 +29,7 @@ def on_login(ventana_login, interfaz_gerente, interfaz_empleado, entry_usuario, 
 
 
 def registrar_usuario(nombre_usuario, contrasena, rol, nombre, apellido, dni):
-    conn = sqlite3.connect('libreria.db')
+    conn = sqlite3.connect(ruta_bd)
     cursor = conn.cursor()
     try:
         cursor.execute("""
@@ -41,7 +45,7 @@ def registrar_usuario(nombre_usuario, contrasena, rol, nombre, apellido, dni):
 def on_register(ventana, ventana_login, entry_usuario, entry_contrasena, entry_rol, entry_nombre, entry_apellido, entry_dni):
     usuario = entry_usuario.get()
     contrasena = entry_contrasena.get()
-    rol = entry_rol.get().lower()
+    rol = "empleado"
     nombre = entry_nombre.get()
     apellido = entry_apellido.get()
     dni = entry_dni.get()
@@ -64,7 +68,7 @@ def on_register(ventana, ventana_login, entry_usuario, entry_contrasena, entry_r
 
 
 def obtener_libros():
-    conn = sqlite3.connect('libreria.db')
+    conn = sqlite3.connect(ruta_bd)
     cursor = conn.cursor()
     cursor.execute("SELECT id_libro, titulo, autor, genero, precio, stock FROM libro")
     libros = cursor.fetchall()
@@ -72,9 +76,22 @@ def obtener_libros():
     return libros
 
 
-
+def obtener_stock_libro(id_libro):
+    conn = sqlite3.connect(ruta_bd)
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT stock FROM libro WHERE id_libro = ?", (id_libro,))
+    resultado = cursor.fetchone()  
+    
+    if resultado:
+        stock = resultado[0]
+    else:
+        stock = 0 
+    
+    conn.close()  
+    return stock
 def realizar_venta(id_libro, cantidad):
-    conn = sqlite3.connect("libreria.db")
+    conn = sqlite3.connect(ruta_bd)
     cursor = conn.cursor()
 
     cursor.execute("SELECT titulo, precio, stock FROM libro WHERE id_libro = ?", (id_libro,))
@@ -100,31 +117,11 @@ def realizar_venta(id_libro, cantidad):
     else:
         conn.close()
         return False, None
-def realizar_venta_funcion(ventana, entry_id_libro, entry_cantidad):
-        try:
-            id_libro = int(entry_id_libro.get())
-            cantidad = int(entry_cantidad.get())
 
-            exito, libro_vendido = realizar_venta(id_libro, cantidad)
-
-            if exito:
-                precio_individual = libro_vendido['precio']
-                costo_total = precio_individual * cantidad
-
-                messagebox.showinfo("Venta Exitosa", f"Venta realizada con éxito\n\n"
-                                                     f"Libro: {libro_vendido['titulo']}\n"
-                                                     f"Precio por unidad: ${precio_individual:.2f}\n"
-                                                     f"Cantidad vendida: {cantidad}\n"
-                                                     f"Costo total: ${costo_total:.2f}\n"
-                                                     f"Stock restante: {libro_vendido['stock_restante']}")
-                ventana.destroy()
-            else:
-                messagebox.showerror("Error", "No hay suficiente stock para realizar la venta.")
-        except ValueError:
-            messagebox.showerror("Error", "Por favor, ingrese valores numéricos válidos para el ID y la cantidad.")   
+ 
 
 def agregar_libro(titulo, autor, genero, precio, stock):
-    conn = sqlite3.connect('libreria.db')
+    conn = sqlite3.connect(ruta_bd)
     cursor = conn.cursor()
     cursor.execute('''
         INSERT INTO libro (titulo, autor, genero, precio, stock)
@@ -140,12 +137,12 @@ def confirmar_agregar(ventana, titulo, autor, genero, precio, stock):
         agregar_libro(titulo.get(), autor.get(), genero.get(), precio_float, stock_int)
             
         messagebox.showinfo("Éxito", "El libro se añadió correctamente.")
-        ventana.destroy()
+        nav_gestionar_inventario(ventana)
     except ValueError:
          messagebox.showerror("Error", "Por favor, ingrese valores numéricos válidos para el Precio y el Stock.")
 
 def editar_libro(id_libro, nuevo_titulo, nuevo_autor, nuevo_genero, nuevo_precio, nuevo_stock):
-    conn = sqlite3.connect('libreria.db')
+    conn = sqlite3.connect(ruta_bd)
     cursor = conn.cursor()
     cursor.execute('''
         UPDATE libro
@@ -156,26 +153,26 @@ def editar_libro(id_libro, nuevo_titulo, nuevo_autor, nuevo_genero, nuevo_precio
     conn.close()
 def confirmar_editar(ventana, id_libro, nuevo_titulo, nuevo_autor, nuevo_genero, nuevo_precio, nuevo_stock):
     try:
-        id_libro_int = int(id_libro.get())
+        id_libro_int = id_libro
         nuevo_precio_float = float(nuevo_precio.get())
         nuevo_stock_int = int(nuevo_stock.get())
 
         editar_libro(id_libro_int, nuevo_titulo.get(), nuevo_autor.get(), nuevo_genero.get(), nuevo_precio_float, nuevo_stock_int)
             
         messagebox.showinfo("Éxito", "El libro se ha editado correctamente.")
-        ventana.destroy()
+        nav_gestionar_inventario(ventana)
     except ValueError:
-        messagebox.showerror("Error", "Por favor, ingrese valores numéricos válidos para el ID, el Precio y el Stock.")
+        messagebox.showerror("Error", "Por favor, ingrese valores numéricos válidos para el Precio y el Stock.")
 
 def eliminar_libro(id_libro):
-    conn = sqlite3.connect('libreria.db')
+    conn = sqlite3.connect(ruta_bd)
     cursor = conn.cursor()
     cursor.execute("DELETE FROM libro WHERE id_libro = ?", (id_libro,))
     conn.commit()
     conn.close()
 def confirmar_eliminar(ventana, id_libro):
     try:
-        id_a_eliminar = int(id_libro.get())
+        id_a_eliminar = id_libro
             
         libros = obtener_libros()
         if not any(libro[0] == id_a_eliminar for libro in libros):
@@ -184,8 +181,58 @@ def confirmar_eliminar(ventana, id_libro):
 
         eliminar_libro(id_a_eliminar)
         messagebox.showinfo("Eliminar Libro", f"El libro con ID {id_a_eliminar} ha sido eliminado.")
-        ventana.destroy()
+        nav_gestionar_inventario(ventana)
+        
     except ValueError:
         messagebox.showerror("Error", "Por favor, ingrese un ID numérico válido.")
     except Exception as e:
         messagebox.showerror("Error", f"Ocurrió un error al intentar eliminar el libro: {e}")
+
+
+
+
+#Funciones de Navegación
+def nav_gestionar_usuarios(ventana):
+    from app.gestionar_usuarios import ventana_gestionar_usuarios 
+    ventana.destroy()
+    ventana_gestionar_usuarios()
+
+def nav_gestionar_inventario(ventana):
+    from app.gestionar_inventario import ventana_gestionar_inventario  
+    ventana.destroy()
+    ventana_gestionar_inventario()
+
+def nav_inventario(ventana, ventana_anterior):
+    from app.inventario import ventana_inventario  
+    ventana.destroy()
+    ventana_inventario(ventana_anterior)
+
+def nav_venta(ventana, ventana_anterior):
+    from app.venta import ventana_venta  
+    ventana.destroy()
+    ventana_venta(ventana_anterior)
+
+def nav_inicio(ventana):
+    from app.login import ventana_inicio
+    ventana.destroy()
+    ventana_inicio()
+
+def nav_gerente(ventana):
+    from app.interfaz_gerente import ventana_gerente
+    ventana.destroy()
+    ventana_gerente()
+
+def nav_agregar(ventana):
+    from app.agregar import ventana_agregar_libro
+    ventana.destroy()
+    ventana_agregar_libro()
+
+def nav_editar(ventana):
+    from app.editar import ventana_editar_libro
+    ventana.destroy()
+    ventana_editar_libro()
+
+def nav_eliminar(ventana):
+    from app.eliminar import ventana_eliminar_libro
+    ventana.destroy()
+    ventana_eliminar_libro()
