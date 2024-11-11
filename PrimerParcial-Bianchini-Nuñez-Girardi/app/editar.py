@@ -53,7 +53,7 @@ def ventana_editar_libro():
     frame_campos.grid(row=2, column=0, columnspan=6, pady=20)
 
     tk.Label(frame_campos, text="ID del Libro").grid(row=0, column=0, padx=5, pady=5)
-    id_libro = tk.Label(frame_campos, text="", width=20, relief="solid")  # Cambiamos a Label
+    id_libro = tk.Label(frame_campos, text="", width=20, relief="solid")  
     id_libro.grid(row=0, column=1, padx=5, pady=5)
 
     tk.Label(frame_campos, text="Nuevo Título").grid(row=0, column=2, padx=5, pady=5)
@@ -80,7 +80,7 @@ def ventana_editar_libro():
         selected_item = tree.selection()
         if selected_item:
             libro = tree.item(selected_item)["values"]
-            id_libro.config(text=libro[0])  # Actualiza el texto del Label
+            id_libro.config(text=libro[0])  
             nuevo_titulo.delete(0, tk.END)
             nuevo_titulo.insert(0, libro[1])
             nuevo_autor.delete(0, tk.END)
@@ -94,7 +94,7 @@ def ventana_editar_libro():
 
     tree.bind("<<TreeviewSelect>>", cargar_libro)
 
-    # Frame para los botones
+    
     frame_botones = tk.Frame(ventana)
     frame_botones.grid(row=3, column=0, columnspan=6, pady=10)
 

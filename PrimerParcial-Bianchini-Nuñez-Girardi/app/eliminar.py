@@ -17,7 +17,7 @@ def ventana_eliminar_libro():
     busqueda_entry = tk.Entry(marco_inventario, width=25)
     busqueda_entry.grid(row=0, column=1, padx=10, pady=10)
 
-    # Tabla de Inventario
+    
     columnas = ["ID", "Título", "Autor", "Género", "Precio", "Stock"]
     tree = ttk.Treeview(marco_inventario, columns=columnas, show="headings", selectmode="browse")
     
@@ -25,7 +25,7 @@ def ventana_eliminar_libro():
         tree.heading(col, text=col, anchor="center")
         tree.column(col, width=150, anchor="center")
 
-    # Scrollbar para la tabla
+    
     scrollbar = ttk.Scrollbar(marco_inventario, orient="vertical", command=tree.yview)
     tree.configure(yscroll=scrollbar.set)
     scrollbar.grid(row=1, column=6, sticky="ns")
@@ -54,19 +54,19 @@ def ventana_eliminar_libro():
 
     buscar_libros()
 
-    # Función para obtener el ID del libro seleccionado
+    
     def obtener_id_seleccionado():
         seleccionado = tree.selection()
         if seleccionado:
             item = tree.item(seleccionado[0])
-            return item['values'][0]  # El ID está en la primera columna
+            return item['values'][0]  
         return None
 
-    # Frame para eliminar
+    
     frame_botones = tk.Frame(ventana)
     frame_botones.grid(row=2, column=0, columnspan=6, pady=10)
 
-    # Botón para eliminar el libro seleccionado
+    
     def eliminar_libro_seleccionado():
         id_libro_seleccionado = obtener_id_seleccionado()
 
@@ -84,7 +84,7 @@ def ventana_eliminar_libro():
     )
     boton_eliminar.grid(row=0, column=0, padx=10)
 
-    # Botón para volver
+    
     boton_volver = tk.Button(
         frame_botones,
         text="Volver",
